@@ -7,11 +7,11 @@
 #
 # set :output, "/path/to/my/cron_log.log"
 #
-every 1.hours do
+every 10.minutes do
   runner "Topic.update_daily_hot_topics"
 end
 
-every 7.days do
+every 1.hour do
   runner "Topic.update_weekly_hot_topics"
 end
 
