@@ -42,6 +42,11 @@ class Reply
     topic.update_last_reply(self)
   end
 
+  after_create :count_replies
+  def count_replies
+    topic.replied
+  end
+
   # 删除的时候也要更新 Topic 的 updated_at 以便清理缓存
   after_destroy :update_parent_topic_updated_at
   def update_parent_topic_updated_at
