@@ -115,7 +115,7 @@ class Topic
   def update_last_reply(reply, opts = {})
     # replied_at 用于最新回复的排序，如果帖着创建时间在一个月以前，就不再往前面顶了
     return false if reply.blank? && !opts[:force]
-    
+
     self.last_active_mark = Time.now.to_i if self.created_at > 1.month.ago
     self.replied_at = reply.try(:created_at)
     self.last_reply_id = reply.try(:id)
@@ -123,12 +123,12 @@ class Topic
     self.last_reply_user_login = reply.try(:user_login)
     self.save
   end
-  
+
   # 更新最后更新人，当最后个回帖删除的时候
   def update_deleted_last_reply(deleted_reply)
     return false if deleted_reply.blank?
     return false if self.last_reply_user_id != deleted_reply.user_id
-    
+
     previous_reply = self.replies.where(:_id.nin => [deleted_reply.id]).recent.first
     self.update_last_reply(previous_reply, force: true)
   end
@@ -160,4 +160,24 @@ class Topic
   def excellent?
     self.excellent >= 1
   end
+
+  def hit
+    timestamp = timestamp_in_minute
+    # 有序集合，key: score => id: timestamp, 用于筛选活跃帖子
+    redis.zadd('recent_hits', timestamp, "topic:#{id}")
+    # hash, 保存 1 分钟内的点击数
+    redis.hincrby("topic:#{id}:hhits", timestamp, 1)
+    hits.incr(1)
+  end
+
+  def replied
+    # 每次回复都会伴随一次点击，统一用 recent_hits 筛选活跃帖子
+    # hash, 保存 1 分钟内的回复数, filed => timestamp，用于算分
+    redis.hincrby("topic:#{id}:hreplies", timestamp_in_minute, 1)
+  end
+
+  def timestamp_in_minute
+    Time.now.beginning_of_minute.to_i
+  end
+
 end

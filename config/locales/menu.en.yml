@@ -51,6 +51,8 @@
     index_node_navigation: "Node Navigation"
     highlight_topic: "Sticky Topic"
     statics: "Statistics"
+    daily_hot_topics: "24 hours hot"
+    weekly_hot_topics: "7 days hot"
     comments: "Comments"
     no_search_result: "No search result"
     access_denied: "Access denied, Please sign in and make sure you have proper permission."

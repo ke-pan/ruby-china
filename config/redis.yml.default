@@ -2,10 +2,14 @@ defaults: &defaults
   host: SETUP_REDIS_HOST
   port: SETUP_REDIS_PORT
 development:
+  db: 0
   <<: *defaults
 test:
+  db: 15
   <<: *defaults
 production:
+  db: 1
   <<: *defaults
 development_mongohq:
+  db: 0
   <<: *defaults
